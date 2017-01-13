@@ -1,0 +1,1 @@
+/home/kyuuzoo/cpp/all.js
