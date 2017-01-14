@@ -21,7 +21,7 @@ function download () {
 	while read -r link; do
 # 		wget --no-verbose  --show-progress --continue --wait $page --input-file  "links.txt"
 		name=$(python2 -c "import sys, urllib as ul; \
-print  ul.unquote_plus(sys.argv[1]).split('/')[-1].split('&')[0]" "$link")
+print  ul.unquote_plus(sys.argv[1]).split('/')[-1].split('&')[0].split('?')[0]" "$link")
 		wget --no-verbose  --show-progress --continue --wait $page  --output-document="$(printf %03d $i)_${name##*/}"  "$link"
 		# out=$? 
 		# ttt=(( out + ttt ))

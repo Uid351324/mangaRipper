@@ -81,6 +81,7 @@ casper.run(function() {
 	{
 		cname = cname.replace(subs[i], '');
 	}
+	cname = cname.split("- Read")[0];
 	name = cname.trim();
 
 	var list = casper.getElementsAttribute('body img', 'src');
