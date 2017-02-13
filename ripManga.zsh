@@ -7,7 +7,7 @@ function download () {
 	loaderJS='/tmp/MangaLoader.user.js'
 	if [[ ! -e "$loaderJS" ]]
 	then
-		wget --no-verbose  --show-progress 'https://greasyfork.org/scripts/692-manga-loader/code/Manga%20Loader.user.js' --output-document="$loaderJS" 
+		wget --no-verbose --continue --show-progress 'https://greasyfork.org/scripts/692-manga-loader/code/Manga%20Loader.user.js' --output-document="$loaderJS" 
 	fi
 	url=$1
 	casperjs --web-security=no --local-storage-path=/tmp/path --cookies-file=$HOME/mycookies.txt "$js/all.js" "$loaderJS" "$url"
@@ -17,12 +17,15 @@ function download () {
 	echo "$dir"
 	i=1
 	total=$(wc -l "links.txt")
+	# exit
 	# ttt=0
 	while read -r link; do
 # 		wget --no-verbose  --show-progress --continue --wait $page --input-file  "links.txt"
 		name=$(python2 -c "import sys, urllib as ul; \
 print  ul.unquote_plus(sys.argv[1]).split('/')[-1].split('&')[0].split('?')[0]" "$link")
-		wget --no-verbose  --show-progress --continue --wait $page  --output-document="$(printf %03d $i)_${name##*/}"  "$link"
+		# wget --no-verbose  --show-progress --continue --wait $page  --output-document="$(printf %03d $i)_${name##*/}"  "$link"
+		echo "$link > $name"
+		curl  --header 'User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:50.0) Gecko/20100101 Firefox/50.0' --header 'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8' --header 'Accept-Language: en-US,en;q=0.5' --header 'Content-Type: application/x-www-form-urlencoded' "$link" --header "Referer: $url" --output "$(printf %03d $i)_${name##*/}" -L
 		# out=$? 
 		# ttt=(( out + ttt ))
 		(( i++ ))

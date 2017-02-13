@@ -31,14 +31,28 @@ var stream ;
 var last=" ";
 var name;
 var k=0;
+var imgSelector = 'body img';
+var imgSrc = 'src';
+var webtoons = false;
+if(url.indexOf('webtoons.com') != -1)
+{
+	imgSelector = '#_imageList ._images';
+	imgSrc = 'data-url';
+	casper.echo("webtoons ");
+	webtoons=true;
+}
+else
+{
+	casper.echo("not webtoons ");
+}
 function getStaff(){
 	casper.wait(2000, function() {
-	        // casper.echo("I've waited for a second.");
-	        var list = casper.getElementsAttribute('body img', 'src');
+	        casper.echo("I've waited for a second.");
+	        var list = casper.getElementsAttribute(imgSelector, imgSrc);
 			 casper.echo("size: "+ list.length);
-			// casper.echo("last "+last + " ?= " +list[list.length-1]);
+			 casper.echo("last "+last + " ?= " +list[list.length-1]);
 
-			 // casper.capture('example'+k+'.png');
+			   // casper.capture('example'+k+'.png');
 			 k++;
 	        if(last != list[list.length-1])
 	        {
@@ -56,20 +70,29 @@ function getStaff(){
 }
 
 casper.start(url, function(){
-	// casper.capture('exampleA.png');
+	 // casper.capture('exampleA1.png');
 	casper.evaluate(function(){
 		localStorage.setItem('mLoadNum', '99');
 	});
-
-	casper.wait(500, function() {casper.reload();});
+	 // casper.capture('exampleA2.png');
+	if(webtoons != true)
+		{
+		casper.wait(500, function() {casper.reload();});
+		 // casper.capture('exampleA3.png');
+		}
 });
 casper.then(function(){
-	this.click('body > button');
+	 casper.capture('exampleB1.png');
+	if(webtoons != true)
+	{
+		this.click('body > button');
+	}
+	 // casper.capture('exampleB2.png');
 	getStaff();
 });
 
 casper.run(function() {
-	// casper.capture('exampleC.png');
+	 // casper.capture('exampleC.png');
 
     // this.echo(pages.toString());
 	// stream.flush();
@@ -77,6 +100,7 @@ casper.run(function() {
 	var cname = name;
 	var subs = ['Page 1 | Batoto!', '| Batoto!', '- Manga Stream', 'online in high quality',
 				'Read manga'];//TODO: add more title cleaners
+
 	for( var i=0; i< subs.length;i++)
 	{
 		cname = cname.replace(subs[i], '');
@@ -84,13 +108,14 @@ casper.run(function() {
 	cname = cname.split("- Read")[0];
 	name = cname.trim();
 
-	var list = casper.getElementsAttribute('body img', 'src');
+	var list = casper.getElementsAttribute(imgSelector, imgSrc);
 	// require('utils').dump( casper.getElementsAttribute('body img', 'src'));
 	// casper.echo("size2 " + list.length);
 	// require('utils').dump( casper.getElementsInfo('body img', 'src'));
 
 	fs.makeDirectory(name);
 	stream = fs.open( name + '/links.txt', 'w');
+	casper.echo("full size: "+ list.length);
 	for(var i =0; i < list.length; i++)
 	{
 		stream.write(list[i]+'\n');
