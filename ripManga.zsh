@@ -9,6 +9,7 @@ function download () {
 		echo $url >> mangarip.log
 		tmpfile=$(mktemp /tmp/tmp.XXXXXX)		
 		curdir=$( pwd)
+		referer="Referer: $url"
 	if [[ "$url" =~ (webtoons.com) ]]; then
 		htmlfile=$(mktemp /tmp/html.XXXXXX)
 		wget --no-verbose --continue --show-progress "$url" -O"$htmlfile"
@@ -28,7 +29,7 @@ function download () {
 
 		# exit
 		# ttt=0
-		referer="Referer: $url"
+		
 		if [[ "$url" =~ (mangastream) ]]; then
 			referer=""
 		fi
