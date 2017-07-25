@@ -82,7 +82,7 @@ casper.start(url, function(){
 		}
 });
 casper.then(function(){
-	 casper.capture('exampleB1.png');
+// 	 casper.capture('exampleB1.png');
 	if(webtoons != true)
 	{
 		this.click('body > button');
