@@ -2,6 +2,7 @@
 manga ripper using Manga Loader userscript
 
 requirements: [casperjs](  http://casperjs.org ), [manga-loader userscript]( https://greasyfork.org/scripts/692-manga-loader/ )
+
 ###all.js
 js script for casperjs that pull all links to images from site supported by manga-loader
 
