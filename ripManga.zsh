@@ -6,7 +6,7 @@ js=${0:h}
 function download () {
 	loaderJS='/tmp/MangaLoader.user.js'
 		url=$1
-		echo $url >> mangarip.log
+		
 		tmpfile=$(mktemp /tmp/tmp.XXXXXX)		
 		curdir=$( pwd)
 		referer="Referer: $url"
@@ -75,7 +75,12 @@ print  ul.unquote_plus(sys.argv[1]).split('/')[-1].split('&')[0].split('?')[0]" 
 		# 	file[2]="/dev/stdin"
 		# fi
 		# while read -r url; do
-		for url in $( cat "${file[-1]}" );
+		input=$( cat "${file[-1]}" )
+		urls=(${=input})
+		for url in $urls ; do
+			echo $url >> mangarip.log
+		done
+		for url in $urls;
 		do
 			if [[ "$url" == "" ]]
 				then
@@ -87,6 +92,9 @@ print  ul.unquote_plus(sys.argv[1]).split('/')[-1].split('&')[0].split('?')[0]" 
 		echo "from file  ${file[2]}"
 	else
 		echo "from args "
+		for url in "$@" ; do
+			echo $url >> mangarip.log
+		done
 		for url in "$@" ; do
 			download $url
 		done
