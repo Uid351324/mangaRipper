@@ -3,7 +3,7 @@ manga ripper using Manga Loader userscript
 
 requirements: [casperjs](  http://casperjs.org ), [manga-loader userscript]( https://greasyfork.org/scripts/692-manga-loader/ )
 
-###all.js
+### all.js
 js script for casperjs that pull all links to images from site supported by manga-loader
 
 usage:
@@ -21,5 +21,5 @@ example zsh shell script that uses all.js, download images and zips them to arch
 options:
 ```shell
 -i #read urls from file, use '-' for stdin
--d #delete directory ino which images was downloaded
+-d #delete directory into which images was downloaded
 ```
