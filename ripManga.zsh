@@ -5,15 +5,35 @@ zparseopts -D -E -A Args -- d i:=file  #-aopt -bopt
 js=${0:h}
 function download () {
 	loaderJS='/tmp/MangaLoader.user.js'
-		url=$1
-		
-		tmpfile=$(mktemp /tmp/tmp.XXXXXX)		
-		curdir=$( pwd)
-		referer="Referer: $url"
+	url=$1
+	if [[ "$url" =~ (localhost) ]]; then #my local rss reader pass
+		url=$( curl -s -o /dev/null -w %{REDIRECT_URL} "$url" )
+	fi
+	tmpfile=$(mktemp /tmp/tmp.XXXXXX)		
+	curdir=$( pwd)
+	referer="Referer: $url"
 	if [[ "$url" =~ (webtoons.com) ]]; then
 		htmlfile=$(mktemp /tmp/html.XXXXXX)
 		wget --no-verbose --continue --show-progress "$url" -O"$htmlfile"
 		title=$(pup -f "$htmlfile" 'title text{}')
+		mkdir "$title"
+		echo "$title" > "$tmpfile"
+		pup -f "$htmlfile" '#_imageList ._images attr{data-url}' > "$title/links.txt"
+	elif [[ "$url" =~ (mangatown.com) ]]; then ##TODO
+		htmlfile=$(mktemp /tmp/html.XXXXXX)
+		wget --no-verbose --continue --show-progress "$url" -O"$htmlfile"
+		title=$(pup -f "$htmlfile" 'title text{}')
+		numpages=$( pup -f "$htmlfile" -n '.manga_read_footer .page_select select option' )
+		mkdir "$title"
+		echo "$title" > "$tmpfile"
+		cd "$title"
+		casperjs "$js/mangatown.js" "$url" $numpages
+		cd "$curdir"
+	elif [[ "$url" =~ (www.mangahere.co) ]]; then ##TODO
+		htmlfile=$(mktemp /tmp/html.XXXXXX)
+		wget --no-verbose --continue --show-progress "$url" -O"$htmlfile"
+		title=$(pup -f "$htmlfile" 'title text{}')
+		curl -s 'http://www.mangahere.co/manga/area_d_inou_ryouiki/c091/3.html' | pup '.readpage_footer .wid60 option attr{value}' 
 		mkdir "$title"
 		echo "$title" > "$tmpfile"
 		pup -f "$htmlfile" '#_imageList ._images attr{data-url}' > "$title/links.txt"
@@ -22,9 +42,22 @@ function download () {
 		then
 			wget --no-verbose --continue --show-progress 'https://greasyfork.org/scripts/692-manga-loader/code/Manga%20Loader.user.js' --output-document="$loaderJS" 
 		fi
-		casperjs --web-security=no --local-storage-path=/tmp/path --cookies-file=$HOME/mycookies.txt "$js/all.js" "$loaderJS" "$url" "$tmpfile"
+		for crush in {1..5}
+		do
+			casperjs --web-security=no --local-storage-path=/tmp/path --cookies-file=$HOME/mycookies.txt "$js/all.js" "$loaderJS" "$url" "$tmpfile"
+			dir=$(cat $tmpfile)
+			if [ -e "$dir/links.txt" ]
+			then
+				break
+			fi
+			echo "crush $crush"
+			sleep 50s
+		done
 		# dir=`find . -type f -name 'links.txt' -printf '%h\n' -quit`
-
+		if [ ! -e "$dir/links.txt" ]
+			then
+				echo "creashed"
+			fi
 
 
 		# exit
@@ -46,7 +79,7 @@ print  ul.unquote_plus(sys.argv[1]).split('/')[-1].split('&')[0].split('?')[0]" 
 		# wget --no-verbose  --show-progress --continue --wait $page  --output-document="$(printf %03d $i)_${name##*/}"  "$link"
 		link="${link#//}"
 		echo "$link > $name"
-		curl  --header 'User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:50.0) Gecko/20100101 Firefox/50.0' --header 'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8' --header 'Accept-Language: en-US,en;q=0.5' --header 'Content-Type: application/x-www-form-urlencoded' "$link" --header "$referer" --output "$(printf %03d $i)_${name##*/}" -L
+		curl  --header 'User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:50.0) Gecko/20100101 Firefox/50.0' --header 'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8' --header 'Accept-Language: en-US,en;q=0.5' --header 'Content-Type: application/x-www-form-urlencoded' "$link" --header "$referer" --output "$(printf %03d $i)_${name##*/}" -L --retry 5
 		# out=$? 
 		# ttt=(( out + ttt ))
 		(( i++ ))
